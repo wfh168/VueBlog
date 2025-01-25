@@ -1,0 +1,128 @@
+// 全局表格样式
+.el-table {
+  --el-table-header-bg-color: var(--hover-bg);
+  --el-table-row-hover-bg-color: var(--hover-bg);
+  --el-table-border-color: var(--border-color);
+  background-color: var(--bg-color);
+  @extend .table;
+  @extend .table-hover;
+  @extend .table-bordered;
+  
+  // 表头样式
+  th {
+    background-color: var(--hover-bg);
+    color: var(--text-color);
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
+    padding: 0.75rem;
+    vertical-align: middle;
+  }
+  
+  // 单元格样式
+  td {
+    color: var(--text-color);
+    padding: 0.75rem;
+    vertical-align: middle;
+  }
+  
+  // 边框样式
+  &.el-table--border {
+    border-color: var(--border-color);
+    
+    .el-table__cell {
+      border-color: var(--border-color);
+    }
+  }
+  
+  // 行样式
+  .el-table__row {
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background-color: rgba(var(--el-color-primary-rgb), 0.1);
+    }
+  }
+}
+
+// 分页样式
+.el-pagination {
+  --el-pagination-button-bg-color: var(--bg-color);
+  --el-pagination-hover-color: var(--el-color-primary);
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px;
+  background-color: var(--bg-color);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  @extend .pagination;
+  @extend .pagination-sm;
+  
+  .el-pagination__total,
+  .el-pagination__sizes,
+  .el-pagination__jump {
+    margin-right: 16px;
+  }
+  
+  .btn-prev,
+  .btn-next {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    margin: 0 4px;
+    padding: 0 6px;
+    min-width: 32px;
+    border-radius: 4px;
+    
+    &:hover {
+      color: var(--el-color-primary);
+      border-color: var(--el-color-primary);
+    }
+    
+    &:disabled {
+      color: var(--el-text-color-disabled);
+      border-color: var(--border-color);
+    }
+  }
+  
+  .el-pager li {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    margin: 0 4px;
+    min-width: 32px;
+    border-radius: 4px;
+    
+    &:hover {
+      color: var(--el-color-primary);
+      border-color: var(--el-color-primary);
+    }
+    
+    &.active {
+      background-color: var(--el-color-primary);
+      color: #fff;
+      border-color: var(--el-color-primary);
+    }
+  }
+}
+
+// 响应式样式
+@media (max-width: 640px) {
+  .el-table {
+    .el-table__fixed-right {
+      display: none;
+    }
+  }
+  
+  .el-pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    
+    .el-pagination__total,
+    .el-pagination__sizes,
+    .el-pagination__jump {
+      margin-right: 0;
+    }
+  }
+} 

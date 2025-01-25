@@ -1,0 +1,75 @@
+:root {
+  /* 颜色 */
+  --primary-color: #3eaf7c;
+  --primary-color-hover: #4abf8a;
+  --primary-color-active: #369f6f;
+  
+  /* 文本颜色 */
+  --text-color-1: #2c3e50;
+  --text-color-2: #476582;
+  --text-color-3: #8e8e8e;
+  --text-color-code: #476582;
+  
+  /* 背景颜色 */
+  --bg-color: #ffffff;
+  --bg-color-soft: #f9f9f9;
+  --bg-color-hover: #f3f4f5;
+  --bg-color-mute: #f1f1f1;
+  
+  /* 边框颜色 */
+  --border-color: #eaecef;
+  --divider-color: #dcdfe6;
+  
+  /* 代码块颜色 */
+  --code-bg-color: #282c34;
+  --code-text-color: #abb2bf;
+  
+  /* 滚动条颜色 */
+  --scrollbar-track-color: transparent;
+  --scrollbar-thumb-color: #c0c4cc;
+  
+  /* 阴影 */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-2: 0 3px 12px rgba(0, 0, 0, 0.07), 0 1px 4px rgba(0, 0, 0, 0.07);
+  --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.08);
+  
+  /* 尺寸 */
+  --header-height: 64px;
+  --sidebar-width: 240px;
+}
+
+/* 暗色主题 */
+:root[data-theme='dark'] {
+  /* 颜色 */
+  --primary-color: #3aa675;
+  --primary-color-hover: #4abf8a;
+  --primary-color-active: #2d8659;
+  
+  /* 文本颜色 */
+  --text-color-1: #f5f7fa;
+  --text-color-2: #e2e2e2;
+  --text-color-3: #a8a8aa;
+  --text-color-code: #a8a8aa;
+  
+  /* 背景颜色 */
+  --bg-color: #1a1a1a;
+  --bg-color-soft: #242424;
+  --bg-color-hover: #2c2c2c;
+  --bg-color-mute: #313131;
+  
+  /* 边框颜色 */
+  --border-color: #363636;
+  --divider-color: #3e3e3e;
+  
+  /* 代码块颜色 */
+  --code-bg-color: #1a1a1a;
+  --code-text-color: #e2e2e2;
+  
+  /* 滚动条颜色 */
+  --scrollbar-thumb-color: #4c4c4c;
+  
+  /* 阴影 */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-2: 0 3px 12px rgba(0, 0, 0, 0.3), 0 1px 4px rgba(0, 0, 0, 0.3);
+  --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.3);
+} 
