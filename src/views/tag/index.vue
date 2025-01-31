@@ -19,9 +19,14 @@
         </el-form-item>
       </el-form>
 
-      <!-- 标签列表 -->
-      <el-table :data="tags" style="width: 100%" v-loading="loading">
-        <el-table-column prop="name" label="标签名称" min-width="200" />
+      <!-- PC端表格显示 -->
+      <el-table 
+        v-if="!isMobile" 
+        :data="tags" 
+        style="width: 100%" 
+        v-loading="loading"
+      >
+        <el-table-column prop="name" label="标签名称" min-width="120" />
         <el-table-column prop="article_count" label="文章数量" width="120" align="center" />
         <el-table-column prop="created_at" label="创建时间" width="180">
           <template #default="{ row }">
@@ -30,21 +35,46 @@
         </el-table-column>
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
-            <el-space>
+            <el-space :size="8">
               <el-button type="primary" size="small" @click="handleEdit(row)">
                 编辑
               </el-button>
-              <el-button 
-                type="danger" 
-                size="small" 
-                @click="handleDelete(row)"
-              >
+              <el-button type="danger" size="small" @click="handleDelete(row)">
                 删除
               </el-button>
             </el-space>
           </template>
         </el-table-column>
       </el-table>
+
+      <!-- 移动端卡片显示 -->
+      <div v-else class="mobile-tag-list">
+        <el-card 
+          v-for="item in tags" 
+          :key="item.tag_id" 
+          class="mobile-tag-card"
+          shadow="hover"
+        >
+          <div class="mobile-tag-header">
+            <h3 class="mobile-tag-name">{{ item.name }}</h3>
+            <el-tag size="small" type="info">{{ item.article_count }} 篇文章</el-tag>
+          </div>
+          <div class="mobile-tag-info">
+            <span class="mobile-tag-time">
+              <el-icon><Clock /></el-icon>
+              {{ formatDate(item.created_at).split(' ')[0] }}
+            </span>
+          </div>
+          <div class="mobile-tag-actions">
+            <el-button type="primary" size="small" @click="handleEdit(item)">
+              编辑
+            </el-button>
+            <el-button type="danger" size="small" @click="handleDelete(item)">
+              删除
+            </el-button>
+          </div>
+        </el-card>
+      </div>
 
       <!-- 分页 -->
       <div class="pagination">
@@ -89,10 +119,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance } from 'element-plus'
 import dayjs from 'dayjs'
+import { Clock } from '@element-plus/icons-vue'
 
 interface Tag {
   tag_id: number
@@ -151,7 +182,9 @@ const tags = ref<Tag[]>([
 ])
 
 const formatDate = (date: string) => {
-  return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+  return isMobile.value ? 
+    dayjs(date).format('YYYY-MM-DD') : 
+    dayjs(date).format('YYYY-MM-DD HH:mm:ss')
 }
 
 const resetForm = () => {
@@ -235,8 +268,20 @@ const handleCurrentChange = (val: number) => {
   // 重新加载数据
 }
 
+// 添加移动端检测
+const isMobile = ref(window.innerWidth <= 768)
+
+// 监听窗口大小变化
+const handleResize = () => {
+  isMobile.value = window.innerWidth <= 768
+}
+
 onMounted(() => {
-  // 加载标签列表
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
 })
 </script>
 
@@ -263,5 +308,157 @@ onMounted(() => {
 
 .w-full {
   width: 100%;
+}
+
+.mobile-tag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mobile-tag-card {
+  margin-bottom: 0;
+}
+
+.mobile-tag-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.mobile-tag-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.mobile-tag-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0;
+  color: var(--el-text-color-secondary);
+  font-size: 13px;
+}
+
+.mobile-tag-time {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mobile-tag-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+@media screen and (max-width: 768px) {
+  .tag-container {
+    padding: 12px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .card-header .el-button {
+    width: 100%;
+  }
+
+  .search-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  :deep(.el-form--inline .el-form-item) {
+    margin-right: 0;
+    width: 100%;
+  }
+
+  :deep(.el-input) {
+    width: 100%;
+  }
+
+  :deep(.el-form-item__content) {
+    display: flex;
+    gap: 8px;
+  }
+
+  :deep(.el-form-item__content .el-button) {
+    flex: 1;
+  }
+
+  :deep(.el-table) {
+    font-size: 12px;
+  }
+
+  :deep(.el-table .cell) {
+    padding: 4px;
+  }
+
+  :deep(.el-table--border .el-table__cell) {
+    padding: 4px;
+  }
+
+  :deep(.el-button--small) {
+    padding: 4px 8px;
+    font-size: 12px;
+    height: 24px;
+  }
+
+  :deep(.el-space) {
+    gap: 4px !important;
+  }
+
+  .pagination {
+    justify-content: center;
+  }
+
+  :deep(.el-pagination) {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  :deep(.el-pagination .el-select) {
+    width: 90px;
+  }
+
+  :deep(.el-dialog) {
+    width: 95% !important;
+    margin: 10px auto !important;
+  }
+
+  :deep(.el-dialog__body) {
+    padding: 12px !important;
+  }
+
+  .mobile-tag-card :deep(.el-card__body) {
+    padding: 12px;
+  }
+
+  .mobile-tag-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .mobile-tag-actions .el-button {
+    margin: 0;
+    width: 100%;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mobile-tag-actions .el-button + .el-button {
+    margin-left: 0;
+  }
 }
 </style> 

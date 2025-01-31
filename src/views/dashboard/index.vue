@@ -91,10 +91,10 @@
           <template #header>
             <div class="card-header">
               <span>访问趋势</span>
-              <el-radio-group v-model="viewChartType" size="small">
-                <el-radio-button value="week">本周</el-radio-button>
-                <el-radio-button value="month">本月</el-radio-button>
-                <el-radio-button value="year">全年</el-radio-button>
+              <el-radio-group v-model="chartType" class="mb-4">
+                <el-radio-button value="week">最近一周</el-radio-button>
+                <el-radio-button value="month">最近一月</el-radio-button>
+                <el-radio-button value="year">最近一年</el-radio-button>
               </el-radio-group>
             </div>
           </template>
@@ -177,7 +177,7 @@ use([
 ])
 
 const router = useRouter()
-const viewChartType = ref('week')
+const chartType = ref('week')
 
 // 统计数据
 const stats = reactive({
@@ -324,13 +324,13 @@ const updateChartData = (type: string) => {
 }
 
 // 监听时间范围变化
-watch(viewChartType, (newType) => {
+watch(chartType, (newType) => {
   updateChartData(newType)
 })
 
 // 初始化图表数据
 onMounted(() => {
-  updateChartData(viewChartType.value)
+  updateChartData(chartType.value)
 })
 
 // 基础图表配置

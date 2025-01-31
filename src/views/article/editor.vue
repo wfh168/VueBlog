@@ -3,7 +3,7 @@
     <div class="editor-header">
       <el-form :model="articleForm" :rules="rules" ref="formRef" class="article-form">
         <el-row :gutter="20">
-          <el-col :xs="24" :sm="12">
+          <el-col :span="24">
             <el-form-item prop="title">
               <el-input
                 v-model="articleForm.title"
@@ -14,7 +14,7 @@
               />
             </el-form-item>
           </el-col>
-          <el-col :xs="24" :sm="6">
+          <el-col :xs="24" :sm="12">
             <el-form-item prop="category">
               <el-select
                 v-model="articleForm.category"
@@ -31,7 +31,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :xs="24" :sm="6">
+          <el-col :xs="24" :sm="12">
             <el-form-item prop="tags">
               <el-select
                 v-model="articleForm.tags"
@@ -54,7 +54,7 @@
         </el-row>
       </el-form>
       <div class="editor-toolbar">
-        <el-space wrap>
+        <el-space :size="isMobile ? 8 : 12" wrap>
           <el-button type="primary" @click="handleSave" :loading="saving">
             <el-icon><DocumentAdd /></el-icon>
             保存草稿
@@ -80,16 +80,17 @@
         :theme="theme"
         @onSave="handleSave"
         :showCodeRowNumber="true"
-        :toolbars="toolbars"
+        :toolbars="isMobile ? mobileToolbars : toolbars"
         codeTheme="github"
         previewTheme="github"
         class="md-editor"
+        :style="{ height: editorHeight }"
       />
     </div>
     <el-dialog
       v-model="historyDialogVisible"
       title="历史版本"
-      width="800px"
+      :width="isMobile ? '95%' : '800px'"
       class="history-dialog"
     >
       <el-table
@@ -98,11 +99,11 @@
         style="width: 100%"
       >
         <el-table-column prop="version" label="版本" width="80" align="center" />
-        <el-table-column prop="updated_at" label="修改时间" width="180" />
-        <el-table-column prop="editor" label="修改人" width="120" />
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column prop="updated_at" label="修改时间" :width="isMobile ? 140 : 180" />
+        <el-table-column prop="editor" label="修改人" :width="isMobile ? 80 : 120" />
+        <el-table-column label="操作" :width="isMobile ? 140 : 200" fixed="right">
           <template #default="{ row }">
-            <el-space>
+            <el-space :size="isMobile ? 4 : 8">
               <el-button
                 type="primary"
                 size="small"
@@ -125,7 +126,7 @@
     <el-dialog
       v-model="previewDialogVisible"
       :title="'版本预览 (v' + selectedVersion?.version + ')'"
-      width="800px"
+      :width="isMobile ? '95%' : '800px'"
       class="preview-dialog"
       append-to-body
     >
@@ -135,15 +136,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch, computed } from 'vue'
+import { ref, reactive, onMounted, watch, computed, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance } from 'element-plus'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
+import { marked } from 'marked'
 import { DocumentAdd, Upload, Close, Timer } from '@element-plus/icons-vue'
 import { useDark } from '@vueuse/core'
-import { marked } from 'marked'
+
 
 interface Category {
   id: number
@@ -183,6 +185,34 @@ const previewDialogVisible = ref(false)
 const loadingHistory = ref(false)
 const versionHistory = ref<VersionHistory[]>([])
 const selectedVersion = ref<VersionHistory | null>(null)
+
+// 添加移动端检测
+const isMobile = ref(window.innerWidth <= 768)
+
+// 监听窗口大小变化
+const handleResize = () => {
+  isMobile.value = window.innerWidth <= 768
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
+
+// 移动端工具栏配置
+const mobileToolbars = [
+  'bold', 'italic', 'quote', 'unorderedList',
+  'orderedList', 'codeRow', 'code', 'link',
+  'image', 'preview', 'fullscreen'
+]
+
+// 编辑器高度计算
+const editorHeight = computed(() => {
+  return isMobile.value ? 'calc(100vh - 240px)' : 'calc(100vh - 280px)'
+})
 
 // 工具栏配置
 const toolbars = [
@@ -555,5 +585,58 @@ watch(isDark, (newValue) => {
 .preview-content :deep(h1) {
   margin-top: 0;
   color: var(--el-text-color-primary);
+}
+
+@media screen and (max-width: 768px) {
+  .editor-container {
+    border-radius: 0;
+  }
+
+  .editor-header {
+    padding: 12px;
+  }
+
+  .editor-toolbar {
+    justify-content: center;
+  }
+
+  .editor-main {
+    padding: 12px;
+  }
+
+  .md-editor {
+    height: calc(100vh - 240px);
+  }
+
+  :deep(.el-form-item) {
+    margin-bottom: 12px;
+  }
+
+  :deep(.el-dialog) {
+    width: 95% !important;
+    margin: 10px auto !important;
+  }
+
+  :deep(.el-dialog__body) {
+    padding: 12px !important;
+  }
+
+  :deep(.el-table) {
+    font-size: 12px;
+  }
+
+  :deep(.el-button--small) {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  :deep(.md-editor-toolbar) {
+    flex-wrap: wrap;
+    padding: 4px;
+  }
+
+  :deep(.md-editor-toolbar-item) {
+    padding: 4px 8px;
+  }
 }
 </style> 

@@ -323,14 +323,6 @@ const handleCurrentChange = (val: number) => {
   transform: translateX(4px);
 }
 
-.read-more .el-icon {
-  transition: transform 0.3s;
-}
-
-.read-more:hover .el-icon {
-  transform: translateX(4px);
-}
-
 .pagination {
   margin-top: 32px;
   display: flex;
@@ -426,7 +418,7 @@ const handleCurrentChange = (val: number) => {
   top: 88px;
 }
 
-/* 更新响应式布局 */
+/* 响应式设计 */
 @media (max-width: 1400px) {
   .home {
     grid-template-columns: 1fr;
@@ -461,13 +453,33 @@ const handleCurrentChange = (val: number) => {
     align-items: flex-start;
   }
 
-  .tags {
-    width: 100%;
-  }
-
   .read-more {
     width: 100%;
     justify-content: center;
+  }
+
+  .pagination :deep(.el-pagination) {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .pagination :deep(.el-pagination__total) {
+    margin-right: 0;
+  }
+
+  .pagination :deep(.el-pagination__sizes) {
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .pagination :deep(.el-pagination) {
+    font-size: 12px;
+  }
+
+  .pagination :deep(.el-pagination .el-select .el-input) {
+    width: 90px;
   }
 }
 </style> 

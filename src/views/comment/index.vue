@@ -16,13 +16,15 @@
       </el-select>
     </div>
 
+    <!-- PC端表格显示 -->
     <el-table
+      v-if="!isMobile"
       v-loading="loading"
       :data="comments"
       style="width: 100%"
       border
     >
-      <el-table-column prop="content" label="评论内容" min-width="300">
+      <el-table-column prop="content" label="评论内容" min-width="200">
         <template #default="{ row }">
           <div class="comment-content">
             <div class="comment-text">{{ row.content }}</div>
@@ -42,15 +44,19 @@
       </el-table-column>
       <el-table-column prop="status" label="状态" width="100">
         <template #default="{ row }">
-          <el-tag :type="getStatusType(row.status)">
+          <el-tag :type="getStatusType(row.status)" size="small">
             {{ getStatusText(row.status) }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="评论时间" width="180" />
+      <el-table-column prop="createTime" label="评论时间" width="180">
+        <template #default="{ row }">
+          {{ row.createTime }}
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="250" fixed="right">
         <template #default="{ row }">
-          <el-space>
+          <el-space :size="8">
             <el-button
               v-if="row.status === 'pending'"
               type="success"
@@ -86,6 +92,70 @@
       </el-table-column>
     </el-table>
 
+    <!-- 移动端卡片显示 -->
+    <div v-else class="mobile-comment-list">
+      <el-card 
+        v-for="item in comments" 
+        :key="item.id" 
+        class="mobile-comment-card"
+        shadow="hover"
+      >
+        <div class="mobile-comment-header">
+          <div class="comment-author">
+            <el-avatar :size="24" :src="item.avatar" />
+            <span class="author-name">{{ item.author }}</span>
+          </div>
+          <el-tag :type="getStatusType(item.status)" size="small">
+            {{ getStatusText(item.status) }}
+          </el-tag>
+        </div>
+        <div class="mobile-comment-content">
+          <div class="comment-text">{{ item.content }}</div>
+          <div class="comment-article">
+            文章：<el-link type="primary" @click="viewArticle(item.articleId)">{{ item.articleTitle }}</el-link>
+          </div>
+        </div>
+        <div class="mobile-comment-info">
+          <span class="mobile-comment-time">
+            <el-icon><Clock /></el-icon>
+            {{ item.createTime.split(' ')[0] }}
+          </span>
+        </div>
+        <div class="mobile-comment-actions">
+          <el-button
+            v-if="item.status === 'pending'"
+            type="success"
+            size="small"
+            @click="handleApprove(item)"
+          >
+            通过
+          </el-button>
+          <el-button
+            v-if="item.status === 'pending'"
+            type="danger"
+            size="small"
+            @click="handleReject(item)"
+          >
+            拒绝
+          </el-button>
+          <el-button
+            type="primary"
+            size="small"
+            @click="handleReply(item)"
+          >
+            回复
+          </el-button>
+          <el-button
+            type="danger"
+            size="small"
+            @click="handleDelete(item)"
+          >
+            删除
+          </el-button>
+        </div>
+      </el-card>
+    </div>
+
     <div class="pagination">
       <el-pagination
         v-model:current-page="currentPage"
@@ -102,7 +172,7 @@
     <el-dialog
       v-model="replyDialogVisible"
       title="回复评论"
-      width="500px"
+      :width="isMobile ? '95%' : '500px'"
     >
       <el-form :model="replyForm" :rules="replyRules" ref="replyFormRef">
         <el-form-item label="回复内容" prop="content">
@@ -117,7 +187,7 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="replyDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitReply">
+          <el-button type="primary" @click="submitReply" :loading="submitting">
             确定
           </el-button>
         </span>
@@ -127,10 +197,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search } from '@element-plus/icons-vue'
+import { Search, Clock } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
 
 const router = useRouter()
@@ -155,6 +225,22 @@ const replyRules = {
     { min: 2, max: 500, message: '长度在 2 到 500 个字符', trigger: 'blur' }
   ]
 }
+
+// 添加移动端检测
+const isMobile = ref(window.innerWidth <= 768)
+
+// 监听窗口大小变化
+const handleResize = () => {
+  isMobile.value = window.innerWidth <= 768
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 
 // 模拟数据
 const comments = ref([
@@ -379,15 +465,64 @@ const handleDelete = (row: any) => {
   width: 120px;
 }
 
-@media (max-width: 640px) {
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mobile-comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mobile-comment-card {
+  margin-bottom: 0;
+}
+
+.mobile-comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.mobile-comment-content {
+  margin-bottom: 12px;
+}
+
+.mobile-comment-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0;
+  color: var(--el-text-color-secondary);
+  font-size: 13px;
+}
+
+.mobile-comment-time {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mobile-comment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+@media screen and (max-width: 768px) {
   .comment-container {
     padding: 12px;
   }
 
   .toolbar {
     flex-direction: column;
-    gap: 12px;
     padding: 12px;
+    gap: 12px;
   }
 
   .search-input {
@@ -396,6 +531,98 @@ const handleDelete = (row: any) => {
 
   :deep(.el-select) {
     width: 100%;
+  }
+
+  :deep(.el-table) {
+    font-size: 12px;
+  }
+
+  :deep(.el-table .cell) {
+    padding: 4px;
+  }
+
+  :deep(.el-table--border .el-table__cell) {
+    padding: 4px;
+  }
+
+  :deep(.el-button--small) {
+    padding: 4px 8px;
+    font-size: 12px;
+    height: 24px;
+  }
+
+  :deep(.el-space) {
+    gap: 4px !important;
+  }
+
+  .comment-text {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .comment-article {
+    font-size: 11px;
+  }
+
+  .author-name {
+    font-size: 11px;
+  }
+
+  :deep(.el-tag--small) {
+    height: 20px;
+    padding: 0 4px;
+    font-size: 11px;
+  }
+
+  .pagination {
+    justify-content: center;
+  }
+
+  :deep(.el-pagination) {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  :deep(.el-pagination .el-select) {
+    width: 90px;
+  }
+
+  :deep(.el-dialog) {
+    width: 95% !important;
+    margin: 10px auto !important;
+  }
+
+  :deep(.el-dialog__body) {
+    padding: 12px !important;
+  }
+
+  .mobile-comment-card :deep(.el-card__body) {
+    padding: 12px;
+  }
+
+  .mobile-comment-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .mobile-comment-actions .el-button {
+    margin: 0;
+    width: 100%;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mobile-comment-actions .el-button + .el-button {
+    margin-left: 0;
+  }
+
+  .comment-text {
+    font-size: 14px;
+    line-height: 1.5;
   }
 }
 </style> 

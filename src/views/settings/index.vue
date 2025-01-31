@@ -48,9 +48,9 @@
         >
           <el-form-item label="主题模式">
             <el-radio-group v-model="themeForm.mode">
-              <el-radio-button label="light">浅色</el-radio-button>
-              <el-radio-button label="dark">深色</el-radio-button>
-              <el-radio-button label="auto">跟随系统</el-radio-button>
+              <el-radio-button value="light">浅色</el-radio-button>
+              <el-radio-button value="dark">深色</el-radio-button>
+              <el-radio-button value="auto">跟随系统</el-radio-button>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="主题色">
@@ -58,8 +58,8 @@
           </el-form-item>
           <el-form-item label="导航布局">
             <el-radio-group v-model="themeForm.layout">
-              <el-radio-button label="side">侧边导航</el-radio-button>
-              <el-radio-button label="top">顶部导航</el-radio-button>
+              <el-radio-button value="side">侧边导航</el-radio-button>
+              <el-radio-button value="top">顶部导航</el-radio-button>
             </el-radio-group>
           </el-form-item>
         </el-form>

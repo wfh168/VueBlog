@@ -1,19 +1,30 @@
 <template>
-  <nav class="article-toc" v-if="tocItems.length">
-    <ul class="toc-list">
-      <li v-for="item in tocItems" :key="item.id" :class="['toc-item', `level-${item.level}`]">
-        <a :href="'#' + item.id" 
-           :class="['toc-link', { active: activeId === item.id }]"
-           @click.prevent="scrollToHeading(item.id)">
+  <nav class="article-toc">
+    <ol v-if="tocItems.length">
+      <li 
+        v-for="item in tocItems" 
+        :key="item.id"
+        :class="{ 
+          'toc-item': true,
+          [`level-${item.level}`]: true,
+          'active': activeId === item.id
+        }"
+      >
+        <a 
+          :href="'#' + item.id"
+          @click.prevent="scrollToHeading(item.id)"
+        >
           {{ item.text }}
         </a>
       </li>
-    </ul>
+    </ol>
+    <div v-else class="no-toc">暂无目录</div>
   </nav>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { marked } from 'marked'
 
 const props = defineProps<{
   content: string
@@ -21,126 +32,159 @@ const props = defineProps<{
 
 interface TocItem {
   id: string
-  level: number
   text: string
-  element?: HTMLElement
+  level: number
 }
 
 const tocItems = ref<TocItem[]>([])
 const activeId = ref('')
+const observer = ref<IntersectionObserver | null>(null)
 
 // 解析内容生成目录
-const parseToc = () => {
-  const container = document.querySelector('.article-content')
-  if (!container) return
-
-  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6')
+const parseToc = (content: string) => {
+  const tokens = marked.lexer(content)
   const items: TocItem[] = []
-
-  headings.forEach((heading: Element) => {
-    const level = parseInt(heading.tagName[1])
-    const text = heading.textContent || ''
-    const id = text.toLowerCase().replace(/\s+/g, '-')
-    heading.id = id
-
-    items.push({
-      id,
-      level,
-      text,
-      element: heading as HTMLElement
-    })
+  
+  tokens.forEach(token => {
+    if (token.type === 'heading') {
+      items.push({
+        id: token.text.toLowerCase().replace(/\s+/g, '-'),
+        text: token.text,
+        level: token.depth
+      })
+    }
   })
-
-  tocItems.value = items
+  
+  return items
 }
 
 // 滚动到指定标题
 const scrollToHeading = (id: string) => {
-  const element = document.getElementById(id)
-  if (element) {
-    const top = element.offsetTop - 80 // 考虑顶部导航栏高度
+  const el = document.getElementById(id)
+  if (el) {
+    // 获取元素的位置信息
+    const rect = el.getBoundingClientRect()
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+    const offset = 80 // 头部导航栏的高度
+    
+    // 计算目标滚动位置
+    const targetPosition = scrollTop + rect.top - offset
+    
     window.scrollTo({
-      top,
+      top: targetPosition,
       behavior: 'smooth'
     })
   }
 }
 
-// 监听滚动更新激活项
-const updateActiveHeading = () => {
-  const scrollTop = window.scrollY
-  let current = ''
-
-  for (const item of tocItems.value) {
-    const element = document.getElementById(item.id)
-    if (element && element.offsetTop - 100 <= scrollTop) {
-      current = item.id
-    } else {
-      break
-    }
+// 监听标题元素是否可见
+const observeHeadings = () => {
+  if (observer.value) {
+    observer.value.disconnect()
   }
 
-  activeId.value = current
+  observer.value = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          activeId.value = entry.target.id
+        }
+      })
+    },
+    {
+      rootMargin: '-80px 0px -80% 0px',
+      threshold: [0, 1]
+    }
+  )
+
+  // 观察所有标题元素
+  tocItems.value.forEach(item => {
+    const el = document.getElementById(item.id)
+    if (el) {
+      observer.value?.observe(el)
+    }
+  })
 }
 
 // 监听内容变化
-watch(() => props.content, () => {
-  setTimeout(parseToc, 100)
-}, { immediate: true })
+watch(
+  () => props.content,
+  (newContent) => {
+    tocItems.value = parseToc(newContent)
+    // 等待 DOM 更新后再观察标题
+    setTimeout(observeHeadings, 100)
+  },
+  { immediate: true }
+)
 
-// 添加滚动监听
 onMounted(() => {
-  window.addEventListener('scroll', updateActiveHeading)
+  observeHeadings()
+  
+  // 为所有标题添加 scroll-margin-top
+  const style = document.createElement('style')
+  style.textContent = `
+    h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
+      scroll-margin-top: 80px;
+    }
+  `
+  document.head.appendChild(style)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', updateActiveHeading)
+  if (observer.value) {
+    observer.value.disconnect()
+  }
 })
 </script>
 
 <style scoped>
 .article-toc {
-  position: relative;
+  font-size: 14px;
+  line-height: 1.5;
+  position: sticky;
+  top: 80px;
 }
 
-.toc-list {
+.article-toc ol {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
 .toc-item {
-  padding: 0;
-  margin: 0;
-}
-
-.toc-link {
-  display: block;
-  padding: 6px 12px;
   margin: 4px 0;
-  color: var(--text-color-2);
+}
+
+.toc-item a {
+  display: block;
+  padding: 4px 8px;
+  color: var(--el-text-color-regular);
   text-decoration: none;
-  font-size: 13px;
-  line-height: 1.4;
   border-radius: 4px;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
 
-.toc-link:hover {
-  color: var(--text-color-1);
-  background-color: var(--bg-color-hover);
+.toc-item a:hover {
+  color: var(--el-color-primary);
+  background-color: var(--el-fill-color-light);
 }
 
-.toc-link.active {
-  color: var(--primary-color);
-  background-color: var(--bg-color-hover);
+.toc-item.active a {
+  color: var(--el-color-primary);
+  background-color: var(--el-fill-color-light);
   font-weight: 500;
 }
 
-.level-1 { padding-left: 0; }
-.level-2 { padding-left: 12px; }
-.level-3 { padding-left: 24px; }
-.level-4 { padding-left: 36px; }
-.level-5 { padding-left: 48px; }
-.level-6 { padding-left: 60px; }
+.level-1 { margin-left: 0; }
+.level-2 { margin-left: 1em; }
+.level-3 { margin-left: 2em; }
+.level-4 { margin-left: 3em; }
+.level-5 { margin-left: 4em; }
+.level-6 { margin-left: 5em; }
+
+.no-toc {
+  color: var(--el-text-color-secondary);
+  text-align: center;
+  padding: 16px;
+}
 </style> 

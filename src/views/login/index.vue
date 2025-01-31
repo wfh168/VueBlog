@@ -130,11 +130,13 @@
                   <span>其他登录方式</span>
                 </div>
                 <div class="social-list">
-                  <div class="social-item" v-for="item in socialIcons" :key="item.icon">
+                  <div 
+                    v-for="item in socialIcons" 
+                    :key="item.icon" 
+                    class="social-item"
+                  >
                     <el-tooltip :content="item.title" placement="top">
-                      <el-icon>
-                        <component :is="item.icon" />
-                      </el-icon>
+                      <component :is="item.icon" />
                     </el-tooltip>
                   </div>
                 </div>
@@ -154,7 +156,10 @@
 import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { User, Lock, Key, Link, Document, Iphone, Message } from '@element-plus/icons-vue'
+import { 
+  User, Lock, Key, Link, Document, Iphone, Message,
+  GithubFilled, Wechat, AlipayCircleFilled, GoogleCircleFilled
+} from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
 import { useDark, useToggle } from '@vueuse/core'
 
@@ -215,7 +220,13 @@ const handleLogin = async () => {
   if (!formRef.value) return
   
   try {
-    await formRef.value.validate()
+    // 根据当前激活的标签页验证不同的字段
+    if (activeTab.value === 'account') {
+      await formRef.value.validateField(['username', 'password', 'captcha'])
+    } else {
+      await formRef.value.validateField(['phone', 'smsCode', 'captcha'])
+    }
+    
     loading.value = true
     
     // 模拟登录请求

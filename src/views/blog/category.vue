@@ -32,6 +32,12 @@
               <el-icon><ChatLineRound /></el-icon>
               {{ article.comments }} 评论
             </span>
+            <span class="meta-item">
+              <el-icon><Folder /></el-icon>
+              <router-link :to="`/blog/category/${article.category.id}`">
+                {{ article.category.name }}
+              </router-link>
+            </span>
           </div>
           <div class="article-summary">{{ article.summary }}</div>
           <div class="article-footer">
@@ -111,7 +117,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { Calendar, View, ChatLineRound, ArrowRight, Folder } from '@element-plus/icons-vue'
+import { Calendar, View, ChatLineRound, Folder, ArrowRight } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 
 const route = useRoute()
@@ -141,6 +147,7 @@ const articles = ref([
     views: 1234,
     comments: 23,
     created_at: '2024-01-15',
+    category: { id: 1, name: '前端开发' },
     tags: [
       { id: 1, name: 'Vue' },
       { id: 2, name: 'TypeScript' }
@@ -294,6 +301,16 @@ onMounted(() => {
   gap: 4px;
 }
 
+.meta-item a {
+  color: var(--text-color-light);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.meta-item a:hover {
+  color: var(--el-color-primary);
+}
+
 .article-summary {
   color: var(--text-color);
   line-height: 1.6;
@@ -326,6 +343,11 @@ onMounted(() => {
   color: #fff;
 }
 
+.tag.active {
+  background-color: var(--el-color-primary);
+  color: #fff;
+}
+
 .read-more {
   display: flex;
   align-items: center;
@@ -333,11 +355,17 @@ onMounted(() => {
   color: var(--el-color-primary);
   text-decoration: none;
   font-size: 14px;
+  font-weight: 500;
   transition: all 0.3s;
+  padding: 6px 16px;
+  border-radius: 20px;
+  background: var(--el-color-primary-light-9);
 }
 
 .read-more:hover {
-  gap: 8px;
+  color: #fff;
+  background: var(--el-color-primary);
+  transform: translateX(4px);
 }
 
 .read-more .icon {
@@ -456,9 +484,16 @@ onMounted(() => {
 }
 
 /* 响应式设计 */
+@media (max-width: 1200px) {
+  .category-page {
+    gap: 16px;
+  }
+}
+
 @media (max-width: 768px) {
   .category-page {
     grid-template-columns: 1fr;
+    padding: 10px;
   }
 
   .sidebar {
@@ -466,8 +501,59 @@ onMounted(() => {
     margin-top: 24px;
   }
 
+  .category-header {
+    padding: 16px;
+  }
+
+  .category-title {
+    font-size: 20px;
+  }
+
+  .article-card {
+    padding: 16px;
+  }
+
+  .article-title {
+    font-size: 18px;
+  }
+
   .article-meta {
     flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .article-footer {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .article-tags {
+    flex-wrap: wrap;
+  }
+
+  .pagination :deep(.el-pagination) {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .read-more {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .category-page {
+    margin-top: 10px;
+  }
+
+  .article-meta {
+    font-size: 12px;
+  }
+
+  .widget {
+    padding: 16px;
   }
 }
 </style> 

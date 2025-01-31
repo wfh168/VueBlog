@@ -24,7 +24,9 @@
       </div>
     </div>
 
+    <!-- PC端表格 -->
     <el-table
+      v-if="!isMobile"
       v-loading="loading"
       :data="articles"
       style="width: 100%"
@@ -108,11 +110,66 @@
       </el-table-column>
     </el-table>
 
+    <!-- 移动端卡片列表 -->
+    <div v-else class="mobile-article-list">
+      <el-card v-for="article in articles" :key="article.id" class="mobile-article-card">
+        <div class="mobile-article-header">
+          <h3 class="mobile-article-title">
+            {{ article.title }}
+            <el-tag
+              v-if="article.status === 'draft'"
+              type="info"
+              size="small"
+              effect="plain"
+              class="status-tag"
+            >
+              草稿
+            </el-tag>
+          </h3>
+        </div>
+        <div class="mobile-article-meta">
+          <el-tag size="small" effect="plain">{{ article.category }}</el-tag>
+          <el-tag
+            v-for="tag in article.tags"
+            :key="tag"
+            class="mx-1"
+            size="small"
+            effect="plain"
+          >
+            {{ tag }}
+          </el-tag>
+        </div>
+        <div class="mobile-article-info">
+          <span>创建时间：{{ article.createTime }}</span>
+          <span>访问量：{{ article.view_count }}</span>
+          <span>收藏：{{ article.favorite_count }}</span>
+        </div>
+        <div class="mobile-article-actions">
+          <el-button type="primary" :icon="View" size="small" @click="handleView(article)">
+            预览
+          </el-button>
+          <el-button type="primary" :icon="Edit" size="small" @click="handleEdit(article)">
+            编辑
+          </el-button>
+          <el-button type="danger" :icon="Delete" size="small" @click="handleDelete(article)">
+            删除
+          </el-button>
+          <el-button
+            :type="article.is_favorited ? 'danger' : 'default'"
+            :icon="Star"
+            circle
+            size="small"
+            @click.stop="handleToggleFavorite(article)"
+          />
+        </div>
+      </el-card>
+    </div>
+
     <!-- 预览对话框 -->
     <el-dialog
       v-model="previewDialogVisible"
       :title="previewArticle?.title"
-      width="800px"
+      :width="isMobile ? '95%' : '800px'"
       class="preview-dialog"
     >
       <div class="preview-content" v-html="previewContent"></div>
@@ -149,6 +206,14 @@ const searchQuery = ref('')
 const filterStatus = ref('')
 const previewDialogVisible = ref(false)
 const previewArticle = ref<Article | null>(null)
+
+// 添加移动端检测
+const isMobile = ref(window.innerWidth <= 768)
+
+// 监听窗口大小变化
+window.addEventListener('resize', () => {
+  isMobile.value = window.innerWidth <= 768
+})
 
 const previewContent = computed(() => {
   if (!previewArticle.value?.content) return ''
@@ -494,6 +559,81 @@ const formatDate = (date: string) => {
   .search-input,
   .filter-select {
     width: 100%;
+  }
+}
+
+/* 移动端样式 */
+.mobile-article-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mobile-article-card {
+  margin-bottom: 0;
+}
+
+.mobile-article-header {
+  margin-bottom: 12px;
+}
+
+.mobile-article-title {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.mobile-article-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: var(--el-text-color-secondary);
+}
+
+.mobile-article-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media screen and (max-width: 768px) {
+  .article-container {
+    padding: 12px;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .toolbar-left,
+  .toolbar-right {
+    width: 100%;
+  }
+
+  .search-input,
+  .filter-select {
+    width: 100%;
+  }
+
+  .preview-dialog {
+    :deep(.el-dialog) {
+      width: 95% !important;
+      margin: 10px auto !important;
+    }
   }
 }
 </style> 

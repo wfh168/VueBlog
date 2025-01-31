@@ -1,16 +1,23 @@
 <template>
   <el-container class="layout-container">
-    <el-aside :width="isCollapse ? '64px' : '220px'" class="aside-container">
+    <el-aside 
+      :width="isCollapse ? '64px' : '220px'" 
+      :class="[
+        'aside-container',
+        { 'is-expanded': !isCollapse && isMobile },
+        { 'is-collapsed': isCollapse && isMobile }
+      ]"
+    >
       <div class="logo-container">
         <img src="../assets/logo.svg" alt="Logo" class="logo-image">
         <h1 class="logo-text" v-show="!isCollapse">博客管理</h1>
       </div>
       <el-scrollbar>
         <el-menu
-          :default-active="route.path"
-          class="el-menu-vertical"
-          :collapse="isCollapse"
-          :router="true"
+            :default-active="route.path"
+            class="el-menu-vertical"
+            :collapse="isCollapse"
+            :router="true"
         >
           <el-menu-item index="/dashboard">
             <el-icon><Odometer /></el-icon>
@@ -57,16 +64,22 @@
         </el-menu>
       </el-scrollbar>
     </el-aside>
+    
+    <!-- 移动端菜单按钮 -->
+    <el-button
+      v-if="isMobile"
+      class="collapse-btn"
+      @click="toggleCollapse"
+    >
+      <el-icon :size="20">
+        <Fold v-if="!isCollapse" />
+        <Expand v-else />
+      </el-icon>
+    </el-button>
+    
     <el-container class="main-container">
       <el-header class="header-container">
         <div class="header-left">
-          <el-button
-            class="collapse-btn"
-            link
-            @click="toggleCollapse"
-          >
-            <el-icon :size="20"><Fold v-if="!isCollapse" /><Expand v-else /></el-icon>
-          </el-button>
           <el-breadcrumb separator="/">
             <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
             <el-breadcrumb-item>{{ getMenuTitle(route.path) }}</el-breadcrumb-item>
@@ -74,9 +87,9 @@
         </div>
         <div class="header-right">
           <el-button
-            class="theme-toggle-btn"
-            link
-            @click="toggleTheme"
+              class="theme-toggle-btn"
+              link
+              @click="toggleTheme"
           >
             <el-icon :size="20">
               <Moon v-if="mode === 'light'" />
@@ -84,10 +97,10 @@
             </el-icon>
           </el-button>
           <el-button
-            class="theme-toggle-btn"
-            link
-            @click="handleRefresh"
-            :loading="refreshing"
+              class="theme-toggle-btn"
+              link
+              @click="handleRefresh"
+              :loading="refreshing"
           >
             <el-icon :size="20">
               <Refresh />
@@ -119,29 +132,29 @@
           </div>
           <el-scrollbar ref="scrollbarRef" class="tabs-scrollbar">
             <el-tabs
-              v-model="activeTab"
-              type="card"
-              @tab-click="handleTabClick"
-              @tab-remove="handleTabRemove"
+                v-model="activeTab"
+                type="card"
+                @tab-click="handleTabClick"
+                @tab-remove="handleTabRemove"
             >
               <el-tab-pane
-                v-for="(tab, index) in tabs"
-                :key="tab.path"
-                :label="tab.title"
-                :name="tab.path"
-                :closable="!tab.fixed && tab.closable"
+                  v-for="(tab, index) in tabs"
+                  :key="tab.path"
+                  :label="tab.title"
+                  :name="tab.path"
+                  :closable="!tab.fixed && tab.closable"
               >
                 <template #label>
-                  <div 
-                    class="custom-tab-label"
-                    :class="{ 'is-fixed': tab.fixed }"
-                    @click.stop="handleTabClick(tab)"
-                    @contextmenu.prevent.stop="handleContextMenu($event, tab)"
-                    draggable="true"
-                    @dragstart="handleDragStart($event, index)"
-                    @dragover.prevent
-                    @dragenter.prevent
-                    @drop="handleDrop($event, index)"
+                  <div
+                      class="custom-tab-label"
+                      :class="{ 'is-fixed': tab.fixed }"
+                      @click.stop="handleTabClick(tab)"
+                      @contextmenu.prevent.stop="handleContextMenu($event, tab)"
+                      draggable="true"
+                      @dragstart="handleDragStart($event, index)"
+                      @dragover.prevent
+                      @dragenter.prevent
+                      @drop="handleDrop($event, index)"
                   >
                     <el-icon class="tab-icon"><component :is="getTabIcon(tab.path)" /></el-icon>
                     <span>{{ tab.title }}</span>
@@ -158,11 +171,11 @@
 
         <!-- 右键菜单 -->
         <ul
-          v-show="contextMenuVisible"
-          :style="contextMenuStyle"
-          class="contextmenu"
-          @click.stop
-          @contextmenu.prevent
+            v-show="contextMenuVisible"
+            :style="contextMenuStyle"
+            class="contextmenu"
+            @click.stop
+            @contextmenu.prevent
         >
           <li @click="toggleFixTab(selectedTab)">
             <el-icon><component :is="selectedTab?.fixed ? 'Bottom' : 'Top'" /></el-icon>
@@ -171,9 +184,9 @@
           <li @click="refreshSelectedTab(selectedTab)">
             <el-icon><Refresh /></el-icon>刷新页面
           </li>
-          <li 
-            @click="closeSelectedTab(selectedTab)"
-            :class="{ 'is-disabled': !selectedTab?.closable || selectedTab?.fixed }"
+          <li
+              @click="closeSelectedTab(selectedTab)"
+              :class="{ 'is-disabled': !selectedTab?.closable || selectedTab?.fixed }"
           >
             <el-icon><Close /></el-icon>关闭当前
           </li>
@@ -197,7 +210,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useColorMode } from '@vueuse/core'
 import {
@@ -295,20 +308,20 @@ const getMenuTitle = (path: string): string => {
 
 // 监听路由变化，动态添加标签页
 watch(
-  () => route.path,
-  (newPath) => {
-    const title = getMenuTitle(newPath)
-    if (title && !tabs.value.some(tab => tab.path === newPath)) {
-      tabs.value.push({
-        title,
-        path: newPath,
-        name: route.name as string,
-        closable: newPath !== '/dashboard'
-      })
-    }
-    activeTab.value = newPath
-  },
-  { immediate: true }
+    () => route.path,
+    (newPath) => {
+      const title = getMenuTitle(newPath)
+      if (title && !tabs.value.some(tab => tab.path === newPath)) {
+        tabs.value.push({
+          title,
+          path: newPath,
+          name: route.name as string,
+          closable: newPath !== '/dashboard'
+        })
+      }
+      activeTab.value = newPath
+    },
+    { immediate: true }
 )
 
 // 切换标签页
@@ -322,7 +335,7 @@ const handleTabClick = (tab: TabItem) => {
 const handleTabRemove = (path: string) => {
   const index = tabs.value.findIndex(tab => tab.path === path)
   if (index === -1) return
-  
+
   tabs.value.splice(index, 1)
   if (path === activeTab.value) {
     // 如果关闭的是当前标签，则切换到前一个标签
@@ -333,9 +346,47 @@ const handleTabRemove = (path: string) => {
   }
 }
 
+// 添加移动端检测
+const isMobile = ref(window.innerWidth <= 768)
+
+// 监听窗口大小变化
+window.addEventListener('resize', () => {
+  isMobile.value = window.innerWidth <= 768
+  if (!isMobile.value) {
+    isCollapse.value = false
+  }
+})
+
+// 修改 toggleCollapse 方法
 const toggleCollapse = () => {
   isCollapse.value = !isCollapse.value
+  if (isMobile.value) {
+    // 移动端点击遮罩层关闭菜单
+    if (!isCollapse.value) {
+      document.addEventListener('click', handleClickOutside)
+    } else {
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }
 }
+
+// 点击外部关闭菜单
+const handleClickOutside = (event: MouseEvent) => {
+  const aside = document.querySelector('.aside-container')
+  const btn = document.querySelector('.collapse-btn')
+  if (aside && btn && !aside.contains(event.target as Node) && !btn.contains(event.target as Node)) {
+    isCollapse.value = true
+    document.removeEventListener('click', handleClickOutside)
+  }
+}
+
+// 组件卸载时移除事件监听
+onUnmounted(() => {
+  window.removeEventListener('resize', () => {
+    isMobile.value = window.innerWidth <= 768
+  })
+  document.removeEventListener('click', handleClickOutside)
+})
 
 // 访问过的路由标签
 const visitedViews = ref([
@@ -382,7 +433,7 @@ const handleContextMenu = (event: MouseEvent, tab: TabItem) => {
       zIndex: '2000'
     }
   })
-  
+
   // 点击其他地方关闭菜单
   const closeMenu = () => {
     contextMenuVisible.value = false
@@ -444,7 +495,7 @@ const handleDragStart = (event: DragEvent, index: number) => {
 const handleDrop = (event: DragEvent, dropIndex: number) => {
   const dragIndex = Number(event.dataTransfer?.getData('text/plain'))
   if (isNaN(dragIndex)) return
-  
+
   // 获取要移动的标签
   const dragTab = tabs.value[dragIndex]
   // 从数组中删除拖动的标签
@@ -457,12 +508,12 @@ const handleDrop = (event: DragEvent, dropIndex: number) => {
 const toggleFixTab = (tab: TabItem) => {
   if (!tab) return
   tab.fixed = !tab.fixed
-  
+
   // 重新排序标签，固定标签放在最前面
   const fixedTabs = tabs.value.filter(t => t.fixed)
   const unfixedTabs = tabs.value.filter(t => !t.fixed)
   tabs.value = [...fixedTabs, ...unfixedTabs]
-  
+
   contextMenuVisible.value = false
 }
 
@@ -622,16 +673,16 @@ const scrollRight = () => {
   line-height: 50px;
   color: var(--el-menu-text-color) !important;
   transition: all 0.3s !important;
-  
+
   &:hover {
     background-color: var(--el-menu-hover-bg-color) !important;
   }
-  
+
   &.is-active {
     background-color: var(--el-menu-active-bg-color) !important;
     color: var(--el-menu-active-color) !important;
     border-right: 2px solid var(--el-menu-active-color);
-    
+
     &::before {
       content: '';
       position: absolute;
@@ -648,7 +699,7 @@ const scrollRight = () => {
 :deep(.el-sub-menu__title) {
   color: var(--el-menu-text-color) !important;
   transition: all 0.3s !important;
-  
+
   &:hover {
     background-color: var(--el-menu-hover-bg-color) !important;
   }
@@ -688,11 +739,11 @@ const scrollRight = () => {
 
 :deep(.el-menu--collapse) {
   width: 64px;
-  
+
   .el-menu-item {
     padding: 0 !important;
     text-align: center;
-    
+
     .el-icon {
       margin: 0;
     }
@@ -726,20 +777,20 @@ const scrollRight = () => {
   cursor: pointer;
   transition: all 0.3s;
   color: var(--text-color);
-  
+
   &:hover {
     background-color: var(--hover-bg);
-    
+
     .close-icon {
       display: inline-flex;
     }
   }
-  
+
   &.active {
     background-color: var(--el-color-primary);
     border-color: var(--el-color-primary);
     color: white;
-    
+
     .close-icon {
       color: white;
     }
@@ -756,7 +807,7 @@ const scrollRight = () => {
   margin-left: 4px;
   font-size: 12px;
   border-radius: 50%;
-  
+
   &:hover {
     background-color: rgba(0, 0, 0, 0.1);
   }
@@ -773,7 +824,7 @@ const scrollRight = () => {
   gap: 8px;
   padding: 8px 16px;
   font-size: 13px;
-  
+
   .el-icon {
     margin-right: 4px;
   }
@@ -785,7 +836,7 @@ const scrollRight = () => {
   gap: 4px;
   height: 100%;
   cursor: move;
-  
+
   &.is-fixed {
     .fixed-icon {
       color: var(--el-color-primary);
@@ -804,12 +855,12 @@ const scrollRight = () => {
   height: 32px;
   line-height: 32px;
   transition: all 0.3s;
-  
+
   &:hover {
     color: var(--el-color-primary);
     background-color: var(--hover-bg);
   }
-  
+
   &.is-active {
     background-color: var(--el-color-primary-light-9);
   }
@@ -826,11 +877,11 @@ const scrollRight = () => {
   gap: 8px;
   padding: 8px 16px;
   font-size: 13px;
-  
+
   .el-icon {
     margin-right: 4px;
   }
-  
+
   &.is-disabled {
     cursor: not-allowed;
     opacity: 0.5;
@@ -849,7 +900,7 @@ const scrollRight = () => {
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   background-color: var(--bg-color);
   border: 1px solid var(--border-color);
-  
+
   .el-dropdown-menu__item {
     display: flex;
     align-items: center;
@@ -859,22 +910,22 @@ const scrollRight = () => {
     color: var(--text-color);
     cursor: pointer;
     transition: all 0.3s;
-    
+
     &:hover {
       background-color: var(--hover-bg);
       color: var(--el-color-primary);
     }
-    
+
     &.is-disabled {
       cursor: not-allowed;
       opacity: 0.5;
-      
+
       &:hover {
         background-color: transparent;
         color: var(--text-color);
       }
     }
-    
+
     .el-icon {
       margin-right: 4px;
       font-size: 16px;
@@ -929,7 +980,7 @@ const scrollRight = () => {
   cursor: pointer;
   transition: all 0.3s;
   z-index: 10;
-  
+
   &:hover {
     background-color: var(--hover-bg);
     color: var(--el-color-primary);
@@ -956,7 +1007,7 @@ const scrollRight = () => {
   border: 1px solid var(--border-color);
   border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  
+
   li {
     display: flex;
     align-items: center;
@@ -966,26 +1017,26 @@ const scrollRight = () => {
     color: var(--text-color);
     cursor: pointer;
     transition: all 0.3s;
-    
+
     &:hover {
       background-color: var(--hover-bg);
       color: var(--el-color-primary);
-      
+
       .el-icon {
         color: var(--el-color-primary);
       }
     }
-    
+
     &.is-disabled {
       cursor: not-allowed;
       opacity: 0.5;
-      
+
       &:hover {
         background-color: transparent;
         color: var(--text-color);
       }
     }
-    
+
     .el-icon {
       font-size: 16px;
     }
@@ -994,5 +1045,65 @@ const scrollRight = () => {
 
 :deep(.el-tabs__nav-wrap) {
   padding: 0 32px;
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .aside-container {
+    position: fixed;
+    left: -220px;
+    top: 0;
+    bottom: 0;
+    z-index: 1000;
+    transition: left 0.3s;
+    
+    &.is-expanded {
+      left: 0;
+    }
+  }
+  
+  .aside-container.is-collapsed {
+    left: -220px;
+  }
+  
+  .collapse-btn {
+    position: fixed;
+    left: 16px;
+    bottom: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--el-color-primary);
+    color: white;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    
+    &:hover {
+      background-color: var(--el-color-primary-light-3);
+      color: white;
+    }
+  }
+  
+  .tabs-view-container {
+    display: none;
+  }
+  
+  .main-container {
+    margin-left: 0 !important;
+  }
+  
+  .header-container {
+    padding-left: 16px;
+  }
+  
+  .header-left {
+    .el-breadcrumb {
+      display: none;
+    }
+  }
 }
 </style> 
