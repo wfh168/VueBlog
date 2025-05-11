@@ -1,0 +1,827 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "个人项目",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/users/register": {
+      "post": {
+        "summary": "用户注册",
+        "deprecated": false,
+        "description": "用户注册\n用户注册\n用户注册接口",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest",
+                "description": "注册请求"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultBoolean",
+                  "description": "注册结果"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": false
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/users/login": {
+      "post": {
+        "summary": "用户登录",
+        "deprecated": false,
+        "description": "用户登录\n用户登录\n用户登录接口",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest",
+                "description": "登录请求"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultLoginResponse",
+                  "description": "登录结果"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "userId": 0,
+                    "username": "",
+                    "role": "",
+                    "avatar": "",
+                    "token": "",
+                    "expiresIn": 0
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "summary": "获取用户信息",
+        "deprecated": false,
+        "description": "获取用户信息\n获取用户信息\n根据用户ID获取用户信息",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "用户ID 用户ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultUserResponse",
+                  "description": "用户信息"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "id": 0,
+                    "username": "",
+                    "email": "",
+                    "avatar": "",
+                    "role": "",
+                    "status": "",
+                    "createdAt": "",
+                    "updatedAt": ""
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "put": {
+        "summary": "更新用户信息",
+        "deprecated": false,
+        "description": "更新用户信息\n更新用户信息\n更新用户基本信息",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "用户ID 用户ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRequest",
+                "description": "更新请求"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultBoolean",
+                  "description": "注册结果"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": false
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "delete": {
+        "summary": "删除用户",
+        "deprecated": false,
+        "description": "删除用户\n删除用户\n删除指定用户",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "用户ID 用户ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultBoolean",
+                  "description": "注册结果"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": false
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/users/current": {
+      "get": {
+        "summary": "获取当前登录用户信息",
+        "deprecated": false,
+        "description": "获取当前登录用户信息\n获取当前登录用户信息",
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultUserResponse",
+                  "description": "用户信息"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "id": 0,
+                    "username": "",
+                    "email": "",
+                    "avatar": "",
+                    "role": "",
+                    "status": "",
+                    "createdAt": "",
+                    "updatedAt": ""
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/users/list": {
+      "get": {
+        "summary": "分页查询用户列表",
+        "deprecated": false,
+        "description": "分页查询用户列表\n分页查询用户列表",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "current",
+            "in": "query",
+            "description": "当前页 当前页",
+            "required": true,
+            "example": 1,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "每页记录数 每页记录数",
+            "required": true,
+            "example": 10,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "username",
+            "in": "query",
+            "description": "用户名，可为空 用户名",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "description": "邮箱，可为空 邮箱",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "状态，可为空 状态",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultIPageUserResponse",
+                  "description": "用户列表分页结果"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "records": [
+                      {
+                        "id": 0,
+                        "username": "",
+                        "email": "",
+                        "avatar": "",
+                        "role": "",
+                        "status": "",
+                        "createdAt": "",
+                        "updatedAt": ""
+                      }
+                    ],
+                    "total": 0,
+                    "size": 0,
+                    "current": 0,
+                    "orders": [
+                      {
+                        "column": "",
+                        "asc": false
+                      }
+                    ],
+                    "optimizeCountSql": false,
+                    "searchCount": false,
+                    "optimizeJoinOfCountSql": false,
+                    "maxLimit": 0,
+                    "countId": "",
+                    "pages": 0
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/users/{id}/role": {
+      "put": {
+        "summary": "更新用户角色",
+        "deprecated": false,
+        "description": "更新用户角色\n更新用户角色",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "用户ID 用户ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeRoleRequest",
+                "description": "角色更新请求"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultBoolean",
+                  "description": "注册结果"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": false
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/captcha/image": {
+      "get": {
+        "summary": "根据类型获取验证码",
+        "deprecated": false,
+        "description": "根据指定类型返回验证码\n根据类型获取验证码\n根据指定类型生成验证码",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "description": "验证码类型 math-数学验证码，其他-普通验证码 验证码类型: math-数学验证码，其他-普通验证码",
+            "required": true,
+            "example": "char",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "description": "验证码ID"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "",
+            "minLength": 4,
+            "maxLength": 20,
+            "pattern": "^[a-zA-Z0-9_-]+$",
+            "examples": [
+              "user123"
+            ]
+          },
+          "password": {
+            "type": "string",
+            "description": "",
+            "minLength": 6,
+            "maxLength": 20,
+            "examples": [
+              "password123"
+            ]
+          },
+          "confirmPassword": {
+            "type": "string",
+            "description": "确认密码",
+            "examples": [
+              "password123"
+            ]
+          },
+          "email": {
+            "type": "string",
+            "description": "",
+            "format": "email",
+            "examples": [
+              "user@example.com"
+            ]
+          },
+          "captchaId": {
+            "type": "string",
+            "description": "验证码ID",
+            "examples": [
+              "fd78b035-94f7-4a68-9e40-87b0cdf8f3a6"
+            ]
+          },
+          "captcha": {
+            "type": "string",
+            "description": "验证码",
+            "examples": [
+              "a1b2"
+            ]
+          }
+        },
+        "required": [
+          "username",
+          "password",
+          "confirmPassword",
+          "email"
+        ]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "",
+            "examples": [
+              "admin"
+            ]
+          },
+          "password": {
+            "type": "string",
+            "description": "",
+            "examples": [
+              "admin123"
+            ]
+          },
+          "captchaId": {
+            "type": "string",
+            "description": "验证码ID",
+            "examples": [
+              "fd78b035-94f7-4a68-9e40-87b0cdf8f3a6"
+            ]
+          },
+          "captcha": {
+            "type": "string",
+            "description": "",
+            "examples": [
+              "a1b2"
+            ]
+          },
+          "rememberMe": {
+            "type": "boolean",
+            "description": "记住我",
+            "examples": [
+              false
+            ],
+            "default": false
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "description": "用户ID"
+          },
+          "username": {
+            "type": "string",
+            "description": "用户名"
+          },
+          "role": {
+            "type": "string",
+            "description": "用户角色"
+          },
+          "avatar": {
+            "type": "string",
+            "description": "头像URL"
+          },
+          "token": {
+            "type": "string",
+            "description": "访问令牌"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "description": "过期时间（秒）",
+            "format": "int64"
+          }
+        }
+      },
+      "OrderItem": {
+        "type": "object",
+        "properties": {
+          "column": {
+            "type": "string",
+            "description": ""
+          },
+          "asc": {
+            "type": "boolean",
+            "description": ""
+          }
+        }
+      },
+      "ResultLoginResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "响应状态码"
+          },
+          "message": {
+            "type": "string",
+            "description": "响应消息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/LoginResponse",
+            "description": "响应数据"
+          }
+        }
+      },
+      "ResultBoolean": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "type": "boolean",
+            "description": ""
+          }
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "用户ID"
+          },
+          "username": {
+            "type": "string",
+            "description": "用户名"
+          },
+          "email": {
+            "type": "string",
+            "description": "用户邮箱"
+          },
+          "avatar": {
+            "type": "string",
+            "description": "用户头像URL"
+          },
+          "role": {
+            "type": "string",
+            "description": "用户角色",
+            "examples": [
+              "user"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "description": "用户状态",
+            "examples": [
+              "active"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "创建时间"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "更新时间"
+          }
+        }
+      },
+      "ResultUserResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "响应状态码"
+          },
+          "message": {
+            "type": "string",
+            "description": "响应消息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserResponse",
+            "description": "响应数据"
+          }
+        }
+      },
+      "IPageUserResponse": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserResponse",
+              "description": "响应数据"
+            },
+            "description": ""
+          },
+          "total": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "size": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "current": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderItem",
+              "description": "com.baomidou.mybatisplus.core.metadata.OrderItem"
+            },
+            "description": ""
+          },
+          "optimizeCountSql": {
+            "type": "boolean",
+            "description": ""
+          },
+          "searchCount": {
+            "type": "boolean",
+            "description": ""
+          },
+          "optimizeJoinOfCountSql": {
+            "type": "boolean",
+            "description": ""
+          },
+          "maxLimit": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "countId": {
+            "type": "string",
+            "description": ""
+          },
+          "pages": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ResultIPageUserResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "响应状态码"
+          },
+          "message": {
+            "type": "string",
+            "description": "响应消息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/IPageUserResponse",
+            "description": "响应数据"
+          }
+        }
+      },
+      "UpdateUserRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "用户邮箱",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "description": "用户密码",
+            "minLength": 6,
+            "maxLength": 20
+          },
+          "confirmPassword": {
+            "type": "string",
+            "description": "确认密码"
+          },
+          "avatar": {
+            "type": "string",
+            "description": "用户头像URL"
+          },
+          "status": {
+            "type": "string",
+            "description": "用户状态",
+            "examples": [
+              "active"
+            ]
+          }
+        }
+      },
+      "ChangeRoleRequest": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "用户角色",
+            "examples": [
+              "admin"
+            ]
+          }
+        },
+        "required": [
+          "role"
+        ]
+      }
+    },
+    "securitySchemes": {}
+  },
+  "servers": [],
+  "security": []
+}

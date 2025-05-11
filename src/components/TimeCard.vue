@@ -13,10 +13,10 @@
         <el-icon><Clock /></el-icon>
         <span>第 {{ getWeek() }} 周</span>
       </div>
-      <div class="info-item">
-        <el-icon><Sunrise /></el-icon>
-        <span>今日已过 {{ getDayProgress() }}%</span>
-      </div>
+<!--      <div class="info-item">-->
+<!--        <el-icon><Sunrise /></el-icon>-->
+<!--        <span>今日已过 {{ getDayProgress() }}%</span>-->
+<!--      </div>-->
     </div>
   </div>
 </template>

@@ -19,35 +19,15 @@
             :collapse="isCollapse"
             :router="true"
         >
-          <el-menu-item index="/dashboard">
-            <el-icon><Odometer /></el-icon>
-            <template #title>仪表盘</template>
+          <el-menu-item
+            v-for="item in visibleMenu"
+            :key="item.path"
+            :index="item.path"
+          >
+            <el-icon><component :is="item.icon" /></el-icon>
+            <template #title>{{ item.name }}</template>
           </el-menu-item>
-          <el-menu-item index="/article">
-            <el-icon><Document /></el-icon>
-            <template #title>文章管理</template>
-          </el-menu-item>
-          <el-menu-item index="/category">
-            <el-icon><Collection /></el-icon>
-            <template #title>分类管理</template>
-          </el-menu-item>
-          <el-menu-item index="/tag">
-            <el-icon><Price-tag /></el-icon>
-            <template #title>标签管理</template>
-          </el-menu-item>
-          <el-menu-item index="/comment">
-            <el-icon><ChatDotRound /></el-icon>
-            <template #title>评论管理</template>
-          </el-menu-item>
-          <el-menu-item index="/gallery">
-            <el-icon><Picture /></el-icon>
-            <template #title>图库管理</template>
-          </el-menu-item>
-          <el-menu-item index="/settings">
-            <el-icon><Setting /></el-icon>
-            <template #title>系统设置</template>
-          </el-menu-item>
-          <el-sub-menu index="/user">
+          <el-sub-menu v-if="userInfo.role === 'admin'" index="/user">
             <template #title>
               <el-icon><User /></el-icon>
               <span>用户管理</span>
@@ -106,18 +86,18 @@
               <Refresh />
             </el-icon>
           </el-button>
-          <el-dropdown trigger="click">
+          <el-dropdown trigger="click" ref="dropdownRef">
             <div class="user-info">
-              <el-avatar :size="32" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
-              <span class="username">管理员</span>
+              <el-avatar :size="32" :src="userInfo.avatar || defaultAvatar" />
+              <span class="username">{{ userInfo.username }}</span>
               <el-icon><ArrowDown /></el-icon>
             </div>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item>
+                <el-dropdown-item @click="goProfile">
                   <el-icon><User /></el-icon>个人信息
                 </el-dropdown-item>
-                <el-dropdown-item divided>
+                <el-dropdown-item divided @click="handleLogout">
                   <el-icon><SwitchButton /></el-icon>退出登录
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -210,7 +190,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, onUnmounted } from 'vue'
+import { ref, watch, nextTick, onUnmounted, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useColorMode } from '@vueuse/core'
 import {
@@ -301,7 +281,8 @@ const getMenuTitle = (path: string): string => {
     '/gallery': '图库管理',
     '/user/info': '用户信息',
     '/user/permission': '权限管理',
-    '/settings': '系统设置'
+    '/settings': '系统设置',
+    '/user/profile': '个人信息'
   }
   return menuMap[path] || path
 }
@@ -533,6 +514,46 @@ const scrollRight = () => {
     scrollbar.scrollLeft += 200
   }
 }
+
+const defaultAvatar = '/src/assets/avatar.png'
+const userInfo = ref({ username: '未登录', avatar: defaultAvatar, role: '' })
+onMounted(() => {
+  const info = localStorage.getItem('userInfo')
+  if (info) {
+    const parsed = JSON.parse(info)
+    userInfo.value.username = parsed.username || '未登录'
+    userInfo.value.avatar = parsed.avatar || defaultAvatar
+    userInfo.value.role = parsed.role || ''
+  }
+})
+const menuItems = [
+  { name: '仪表盘', path: '/dashboard', icon: 'Odometer', roles: ['admin', 'editor'] },
+  { name: '文章管理', path: '/article', icon: 'Document', roles: ['admin', 'editor'] },
+  { name: '分类管理', path: '/category', icon: 'Collection', roles: ['admin', 'editor'] },
+  { name: '标签管理', path: '/tag', icon: 'PriceTag', roles: ['admin', 'editor'] },
+  { name: '评论管理', path: '/comment', icon: 'ChatDotRound', roles: ['admin'] },
+  { name: '图库管理', path: '/gallery', icon: 'Picture', roles: ['admin'] },
+  { name: '系统设置', path: '/settings', icon: 'Setting', roles: ['admin'] },
+
+]
+const visibleMenu = computed(() => menuItems.filter(item => item.roles.includes(userInfo.value.role)))
+
+const dropdownRef = ref()
+
+const goProfile = () => {
+  router.push('/user/profile')
+  // 关闭下拉菜单
+  dropdownRef.value?.hide?.()
+}
+const handleLogout = () => {
+  localStorage.removeItem('token')
+  localStorage.removeItem('tokenExpire')
+  localStorage.removeItem('userInfo')
+  userInfo.value = { username: '未登录', avatar: defaultAvatar, role: '' }
+  router.push('/login')
+  dropdownRef.value?.hide?.()
+  ElMessage.success('已退出登录')
+}
 </script>
 
 <style scoped>
@@ -607,6 +628,7 @@ const scrollRight = () => {
 .user-info {
   display: flex;
   align-items: center;
+  gap: 8px;
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 4px;
@@ -620,6 +642,12 @@ const scrollRight = () => {
 .username {
   margin: 0 8px;
   color: var(--text-color);
+  font-size: 15px;
+  font-weight: 500;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .main-container {
